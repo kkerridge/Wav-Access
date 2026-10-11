@@ -55,7 +55,7 @@ After the ignition has been off for 20 minutes, the controller stops all relays,
 
 ### Web interface and calibration
 
-The ESP32 creates a local Wi-Fi access point and serves a browser-based control page. The page provides:
+The ESP32 creates a local Wi-Fi access point and serves a browser-based control page at 192.168.4.1  . The page provides:
 
 - Automatic entry, automatic exit, and stop controls.
 - Live tank-pressure, sensor, and operating-state information.
