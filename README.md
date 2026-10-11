@@ -1,6 +1,21 @@
 # WAV Access Controller
 
-ESP32-S3 firmware for controlling the powered access system on a wheelchair-accessible vehicle (WAV). It coordinates the rear door, access ramp, compressor, air supply, exhaust, and left and right suspension bags from physical vehicle inputs or a local web interface.
+Replacement control software for the failed access-system electronics in a Sirus-converted Volkswagen Caddy 3 wheelchair-accessible vehicle (WAV).
+
+The project retains the vehicle's existing pneumatic system, actuators, valves, and analogue sensors. The original electronic controller is replaced by an ESP32-S3 Waveshare relay board with an added external ADC for reading the sensor signals. The software coordinates the rear door, access ramp, compressor, air supply, exhaust, and left and right suspension bags from the vehicle inputs or a local web interface.
+
+## Project purpose
+
+The original Sirus conversion electronics failed, leaving the pneumatic access equipment without a working controller. This firmware provides a serviceable replacement control system using readily available hardware. It is intended specifically for the converted VW Caddy 3 being repaired and reproduces the required entry, exit, suspension-lowering, suspension-raising, and balancing operations.
+
+## Replacement hardware
+
+- ESP32-S3 Waveshare relay board as the main controller.
+- Eight relay outputs for the compressor, exhaust, air supply, left bag, right bag, ramp, door-open, and door-close circuits.
+- External ADS1115 ADC connected over I2C.
+- Four analogue measurements: left suspension height, right suspension height, tank pressure, and door position.
+- Physical stop, entry/open, exit/close, and ignition inputs.
+- The vehicle's existing pneumatic equipment and sensors.
 
 ## What the software does
 
@@ -69,7 +84,9 @@ The firmware revision is displayed at the top of the source file and at the bott
 
 ## Target
 
+- Sirus-converted Volkswagen Caddy 3 WAV
 - ESP32-S3
+- Waveshare relay controller with external ADS1115 ADC
 - Arduino ESP32 core 3.3.8
 
 Bench-test all input polarity, relay outputs, limit values, and pneumatic safety behaviour before operating the installed system.
