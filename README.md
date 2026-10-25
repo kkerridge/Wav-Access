@@ -2,7 +2,7 @@
 
 Replacement control software for the failed access-system electronics in a Sirus-converted Volkswagen Caddy 3 wheelchair-accessible vehicle (WAV).
 
-The project retains the vehicle's existing pneumatic system, actuators, valves, and analogue sensors. The original electronic controller is replaced by an ESP32-S3 Waveshare relay board with an added external ADC for reading the sensor signals. The software coordinates the rear door, access ramp, compressor, air supply, exhaust, and left and right suspension bags from the vehicle inputs or a local web interface.
+The project retains the vehicle's pneumatic actuators, valves, and analogue sensors while removing the separate air tank. The original electronic controller is replaced by an ESP32-S3 Waveshare relay board with an added external ADC for reading the sensor signals. The software coordinates the rear door, access ramp, compressor, exhaust, left and right suspension bags, and door-seal latch from the vehicle inputs or a local web interface.
 
 ## Project purpose
 
@@ -11,9 +11,9 @@ The original Sirus conversion electronics failed, leaving the pneumatic access e
 ## Replacement hardware
 
 - ESP32-S3 Waveshare relay board as the main controller.
-- Eight relay outputs for the compressor, exhaust, air supply, left bag, right bag, ramp, door-open, and door-close circuits.
+- Eight relay outputs for the compressor, exhaust, left bag, right bag, ramp, door-open, door-close, and door-seal latch circuits.
 - External ADS1115 ADC connected over I2C.
-- Four analogue measurements: left suspension height, right suspension height, tank pressure, and door position.
+- Four analogue measurements: left suspension height, right suspension height, system air pressure, and door position.
 - Physical stop, entry/open, exit/close, and ignition inputs.
 - The vehicle's existing pneumatic equipment and sensors.
 
@@ -47,7 +47,16 @@ If ignition is removed during the delay, raising, or balancing, the outputs stop
 
 While the ignition remains on, the software periodically checks the suspension. It samples both height sensors to make sure the vehicle is stable before deciding whether a top-up is required. A low, stable side is raised to its saved working height and the normal balancing routine is then run.
 
-The compressor is used only when air is required and the measured tank pressure is below the configured level. Left and right bag valves are controlled separately so one side can finish before the other.
+The compressor is used only when air is required and the measured system pressure is below the calibrated maximum. Left and right bag valves are controlled separately so one side can finish before the other.
+
+### Door-seal latch and air-system change
+
+The separate air tank and its solenoid are no longer used. The former tank-solenoid relay output is reassigned to the door-seal latch:
+
+- Ignition on energises the latch relay and pulls the closed door tightly against its seal.
+- Ignition off releases the latch relay and removes pressure from the latch.
+- The pressure sensor remains in the common feed to the pneumatic solenoids.
+- The existing pressure calibration sets the compressor's maximum permitted system pressure and protects against over-pressurisation.
 
 ### Low-power operation
 
@@ -55,12 +64,12 @@ After the ignition has been off for 20 minutes, the controller stops all relays,
 
 ### Web interface and calibration
 
-The ESP32 creates a local Wi-Fi access point and serves a browser-based control page at 192.168.4.1  . The page provides:
+The ESP32 creates a local Wi-Fi access point and serves a browser-based control page at `http://192.168.4.1`. The page provides:
 
 - Automatic entry, automatic exit, and stop controls.
-- Live tank-pressure, sensor, and operating-state information.
-- Manual jog controls for the door, suspension bags, and air tank.
-- Calibration controls for bag dump height, bag working height, tank pressure, door-open position, door-closed position, and the slow-open point.
+- Live system-pressure, sensor, and operating-state information.
+- Manual jog controls for the door, suspension bags, pump, and exhaust.
+- Calibration controls for bag dump height, bag working height, maximum system pressure, door-open position, door-closed position, and the slow-open point.
 - Persistent storage of calibration settings in ESP32 Preferences memory.
 
 The firmware revision is displayed at the top of the source file and at the bottom of the web page.
@@ -76,9 +85,11 @@ The firmware revision is displayed at the top of the source file and at the bott
 
 ## Current firmware
 
-`WAV_Controller_R2_1_2026-10-11.ino`
+`WAV_Controller_R2_2_2026-10-25.ino`
 
-- Firmware revision: `WAV-R2.1-2026-10-11`
+- Firmware revision: `WAV-R2.2-2026-10-25`
+- The former tank-solenoid relay is now the ignition-controlled door-seal latch.
+- The pressure sensor calibration now defines the maximum compressor pressure.
 - After the door closes, suspension raising waits for ignition plus 20 seconds.
 - The pending post-exit raise is cancelled when the 20-minute low-power timeout expires.
 
